@@ -21,7 +21,11 @@
       {
         "name": "next"
       }
-    ]
+    ],
+    "baseUrl": ".",  // Ajouté
+    "paths": {        // Ajouté
+      "@/*": ["./app/*"]  // Ajouté, adapte le chemin si tu utilises 'src' au lieu de 'app'
+    }
   },
   "include": [
     "next-env.d.ts",

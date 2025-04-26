@@ -1,19 +1,24 @@
 import React from 'react';
 import Link from 'next/link';
+import Footer from '../components/footer'
 
 export default function Profil() {
   return (
     <div className="min-h-screen bg-white">
       <header className="bg-yellow-800 text-white p-4 flex items-center justify-between">
         
-        <Link href= "/.">
-        <button className="bg-gray-300 text-black px-4 py-1 rounded">Accueil</button>
-        </Link>
+          <Link href="/connexion">
+          <button className="bg-gray-300 text-black px-4 py-1 rounded">Connexion</button>
+          </Link>
+
+          <Link href="/inscription">
+          <button className="bg-gray-300 text-black px-4 py-1 rounded">Inscription</button>
+          </Link>
 
         <h1 className="text-xl font-semibold">PROFIL</h1>
       </header>
 
-      <main className="p-8 space-y-8">
+      <main className="p-8 space-y-8 pb-24">
         <section className="flex items-center space-x-6">
           <div>
             <p><strong>Nom de Profil :</strong> Syallis</p>
@@ -41,6 +46,7 @@ export default function Profil() {
           </div>
         </section>
       </main>
+      <Footer/>
     </div>
   );
 }
