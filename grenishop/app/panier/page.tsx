@@ -1,63 +1,81 @@
-"use client";
+'use client';
 
-import React from "react";
+import { useEffect, useState } from 'react';
+import Link from 'next/link';
+import Footer from '../components/footer';
+import Header from '../components/header';
 
-const cartItems = [
-  {
-    id: 1,
-    name: "T-shirt oversize",
-    price: 25,
-    quantity: 2,
-    image: "/images/tshirt.jpg",
-  },
-  {
-    id: 2,
-    name: "Jean baggy",
-    price: 40,
-    quantity: 1,
-    image: "/images/jean.jpg",
-  },
-];
+interface Article {
+  id: number;
+  name: string;
+  price: number;
+}
 
-export default function PanierPage() {
-  const total = cartItems.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  );
+export default function Panier() {
+  const [panier, setPanier] = useState<Article[]>([]);
+
+  // Charger les articles du panier depuis localStorage
+  useEffect(() => {
+    const storedPanier = localStorage.getItem('panier');
+    if (storedPanier) {
+      setPanier(JSON.parse(storedPanier));
+    }
+  }, []);
+
+  // Supprimer un article
+  const supprimerArticle = (id: number) => {
+    const nouveauPanier = panier.filter(article => article.id !== id);
+    setPanier(nouveauPanier);
+    localStorage.setItem('panier', JSON.stringify(nouveauPanier));
+  };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6">Mon Panier</h1>
+    <div className="min-h-screen flex flex-col bg-white">
+      {/* Header existant */}
+      <Header />
 
-      <div className="space-y-4">
-        {cartItems.map((item) => (
-          <div
-            key={item.id}
-            className="flex items-center justify-between border rounded-lg p-4 shadow-sm bg-white"
-          >
-            <div className="flex items-center gap-4">
-              <img
-                src={item.image}
-                alt={item.name}
-                className="w-20 h-20 object-cover rounded"
-              />
-              <div>
-                <h2 className="text-lg font-semibold">{item.name}</h2>
-                <p className="text-gray-500">Quantité : {item.quantity}</p>
-                <p className="font-medium">{item.price} €</p>
-              </div>
+      {/* Contenu du panier */}
+      <main className="flex-grow px-6 py-8 pt-24 pb-32">
+        <div className="max-w-6xl mx-auto">
+          <h1 className="text-3xl font-bold text-gray-800 mb-6">Votre Panier</h1>
+
+          {panier.length === 0 ? (
+            <div className="flex flex-col items-center justify-center mt-20">
+              <h2 className="text-2xl font-semibold text-gray-700 mb-4">Votre panier est vide</h2>
+              <p className="text-gray-500 mb-6">Ajoutez des articles à votre panier pour commencer votre commande.</p>
+              <Link
+                href="/"
+                className="bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-500 transition"
+              >
+                Continuer mes achats
+              </Link>
             </div>
-            <button className="text-red-600 hover:underline">Supprimer</button>
-          </div>
-        ))}
-      </div>
+          ) : (
+            <div className="space-y-4">
+              {panier.map((article) => (
+                <div
+                  key={article.id}
+                  className="flex justify-between items-center bg-white p-4 rounded-md shadow-md"
+                >
+                  <div>
+                    <h2 className="text-xl font-semibold">{article.name}</h2>
+                    <p className="text-gray-600">{article.price} €</p>
+                  </div>
+                  <button
+                    onClick={() => supprimerArticle(article.id)}
+                    className="text-red-600 hover:text-red-800 font-semibold"
+                  >
+                    Supprimer
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </main>
 
-      <div className="mt-6 flex justify-between items-center bg-gray-100 p-4 rounded-lg">
-        <p className="text-xl font-semibold">Total : {total} €</p>
-        <button className="bg-black text-white px-6 py-2 rounded hover:bg-gray-800">
-          Valider la commande
-        </button>
-      </div>
+      {/* Footer existant */}
+      <Footer />
     </div>
   );
 }

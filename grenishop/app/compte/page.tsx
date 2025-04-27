@@ -1,52 +1,77 @@
-import React from 'react';
-import Link from 'next/link';
-import Footer from '../components/footer'
+'use client'; // Cette directive marque le composant comme client-side
 
-export default function Profil() {
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import Header from '../components/header';
+import Footer from '../components/footer';
+
+// Exemple de données utilisateur
+const userMockData = {
+  id: 1,
+  name: 'Jean Dupont',
+  email: 'jean.dupont@email.com',
+  orders: [
+    { id: 101, product: 'Produit 1', status: 'Livré', date: '2024-04-01' },
+    { id: 102, product: 'Produit 2', status: 'En attente', date: '2024-04-10' },
+  ],
+};
+
+export default function Compte() {
+  const router = useRouter();
+  const [user, setUser] = useState(userMockData);
+
+  useEffect(() => {
+    // Simuler une récupération de données depuis une API ou un backend
+    setUser(userMockData);
+  }, []);
+
   return (
-    <div className="min-h-screen bg-white">
-      <header className="bg-yellow-800 text-white p-4 flex items-center justify-between">
-        
-          <Link href="/connexion">
-          <button className="bg-gray-300 text-black px-4 py-1 rounded">Connexion</button>
-          </Link>
-
-          <Link href="/inscription">
-          <button className="bg-gray-300 text-black px-4 py-1 rounded">Inscription</button>
-          </Link>
-
-        <h1 className="text-xl font-semibold">PROFIL</h1>
-      </header>
-
-      <main className="p-8 space-y-8 pb-24">
-        <section className="flex items-center space-x-6">
-          <div>
-            <p><strong>Nom de Profil :</strong> Syallis</p>
-            <p><strong>Date de création :</strong> 10 janvier 2025</p>
-            <p><strong>Nom :</strong> Bouanga Niambi</p>
-            <p><strong>Prénom :</strong> Désir</p>
-          </div>
-          <div className="w-32 h-32 border flex items-center justify-center">
-            <span className="text-sm text-gray-600">Photo</span>
-          </div>
-        </section>
-
-        <section>
-          <h2 className="text-lg font-bold mb-4">Achats</h2>
-          <div className="grid grid-cols-2 gap-6">
-            <div className="border p-4">
-              <p><strong>Oreiller</strong></p>
-              <p>Date d'achat : 14 janvier 2025</p>
-              <p className="text-sm text-gray-700">Un oreiller qui vous emmènera voir Morphée en 1 min chrono</p>
-            </div>
-            <div className="border p-4">
-              <p><strong>Lit</strong></p>
-              <p>Date d'achat : 16 janvier 2025</p>
+    <div className="min-h-screen flex flex-col bg-white">
+      <Header />
+      <main className="flex-grow px-6 py-8 pt-24 pb-32">
+        <div className="max-w-6xl mx-auto">
+          {/* Informations utilisateur */}
+          <div className="mb-8">
+            <h1 className="text-3xl font-semibold mb-4">Mon Compte</h1>
+            <div className="bg-gray-100 p-6 rounded-xl shadow-md">
+              <h2 className="text-xl font-medium">Informations personnelles</h2>
+              <p><strong>Nom:</strong> {user.name}</p>
+              <p><strong>Email:</strong> {user.email}</p>
+              <div className="mt-4">
+                <button
+                  onClick={() => router.push('/modifier-compte')} // Lien vers une page de modification
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-500 transition"
+                >
+                  Modifier mes informations
+                </button>
+              </div>
             </div>
           </div>
-        </section>
+
+          {/* Commandes passées */}
+          <div className="mb-8">
+            <h2 className="text-2xl font-semibold mb-4">Mes commandes</h2>
+            <div className="space-y-4">
+              {user.orders.map((order) => (
+                <div key={order.id} className="bg-gray-100 p-4 rounded-xl shadow-md">
+                  <h3 className="text-lg font-medium">{order.product}</h3>
+                  <p><strong>Status:</strong> {order.status}</p>
+                  <p><strong>Date:</strong> {order.date}</p>
+                  <div className="mt-4">
+                    <button
+                      onClick={() => router.push(`/commande/${order.id}`)} // Détail de la commande
+                      className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-500 transition"
+                    >
+                      Voir les détails
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       </main>
-      <Footer/>
+      <Footer />
     </div>
   );
 }
