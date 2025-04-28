@@ -1,4 +1,6 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+const API_URL =
+  process.env.NEXT_PUBLIC_API_URL ||
+  "https://grenishop-agdfdkhbcpf8erfv.francecentral-01.azurewebsites.net";
 
 // Types
 export interface Entreprise {
