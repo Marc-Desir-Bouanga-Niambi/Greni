@@ -22,23 +22,33 @@ export interface Produit {
 export const produitService = {
   getAll: async (): Promise<Produit[]> => {
     try {
+      console.log("Tentative de connexion à l'API:", `${API_URL}/api/Produits`);
       const response = await fetch(`${API_URL}/api/Produits`, {
         method: "GET",
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json",
         },
+        mode: "cors",
+        credentials: "omit",
       });
 
       if (!response.ok) {
-        throw new Error(`Erreur HTTP: ${response.status}`);
+        console.error("Erreur HTTP:", response.status, response.statusText);
+        throw new Error(
+          `Erreur HTTP: ${response.status} - ${response.statusText}`
+        );
       }
 
-      return response.json();
+      const data = await response.json();
+      console.log("Données reçues:", data);
+      return data;
     } catch (error) {
-      console.error("Erreur lors de la récupération des produits:", error);
+      console.error("Erreur détaillée:", error);
       throw new Error(
-        "Impossible de se connecter au serveur. Vérifiez que le backend est en cours d'exécution."
+        `Impossible de se connecter au serveur: ${
+          error instanceof Error ? error.message : "Erreur inconnue"
+        }`
       );
     }
   },
