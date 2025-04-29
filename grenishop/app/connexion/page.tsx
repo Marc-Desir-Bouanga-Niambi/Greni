@@ -1,9 +1,8 @@
-'use client'; // Cette directive marque le composant comme client-side
+'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import Header from '../components/header';
-import Footer from '../components/footer';
+import Footer from '../components/fin';
 
 const mockUser = {
   email: 'jean.dupont@email.com',
@@ -15,89 +14,96 @@ export default function Connexion() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.playbackRate = 0.5;
+    }
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Vérification des identifiants
     if (email === mockUser.email && password === mockUser.password) {
-      router.push('/compte');  // Redirection vers la page du profil après la connexion réussie
+      router.push('/compte');
     } else {
       setError('Email ou mot de passe incorrect');
     }
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-white">
-      <Header />
-      <main className="flex-grow px-6 py-8 pt-24 pb-32">
-        <div className="max-w-md mx-auto">
-          {/* Image de connexion */}
-          <div
-            className="flex justify-center items-center h-96 bg-cover bg-center"
-            style={{ backgroundImage: "url('/images/bambi.jpg')" }}
-          >
-            {/* Le contenu de la connexion */}
-            <div className="bg-white bg-opacity-75 p-6 rounded-xl shadow-md w-full">
-              <h1 className="text-3xl font-semibold mb-6">Se connecter</h1>
-              <form onSubmit={handleSubmit} className="bg-gray-100 p-6 rounded-xl shadow-md">
-                <div className="mb-4">
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                    Email
-                  </label>
-                  <input
-                    type="email"
-                    id="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    className="mt-2 p-3 w-full border border-gray-300 rounded-md"
-                  />
-                </div>
+    <div className="relative min-h-screen flex items-center justify-center">
+      {/* Vidéo de fond */}
+      <div className="fixed inset-0 -z-10 bg-transparent">
+        <video
+          ref={videoRef}
+          src="/videos/tortue.mp4"
+          autoPlay
+          muted
+          loop
+          className="w-full h-full object-cover"
+        />
+      </div>
 
-                <div className="mb-4">
-                  <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                    Mot de passe
-                  </label>
-                  <input
-                    type="password"
-                    id="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    className="mt-2 p-3 w-full border border-gray-300 rounded-md"
-                  />
-                </div>
+      {/* Cadre de connexion avec transparence */}
+      <div className="w-full max-w-md mx-auto bg-white/70 backdrop-blur-md p-8 rounded-xl shadow-md">
+        <h1 className="text-3xl font-semibold mb-6 text-center text-black">Se connecter</h1>
 
-                {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
-
-                <button
-                  type="submit"
-                  className="w-full py-3 bg-blue-600 text-white rounded-md hover:bg-blue-500 transition"
-                >
-                  Se connecter
-                </button>
-              </form>
-
-              <div className="mt-6 text-center">
-                <p className="text-sm text-gray-600">
-                  Pas encore de compte ?{' '}
-                  <a href="/inscription" className="text-blue-600 hover:underline">
-                    Créer un compte
-                  </a>
-                </p>
-                {/* Lien vers le profil */}
-                <p className="text-sm text-gray-600 mt-4">
-                  Déjà un compte ?{' '}
-                  <a href="/compte" className="text-blue-600 hover:underline">
-                    Voir mon profil
-                  </a>
-                </p>
-              </div>
-            </div>
+        <form onSubmit={handleSubmit}>
+          <div className="mb-4">
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+              Email
+            </label>
+            <input
+              type="email"
+              id="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="mt-2 p-3 w-full border border-gray-300 rounded-md"
+            />
           </div>
+
+          <div className="mb-4">
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+              Mot de passe
+            </label>
+            <input
+              type="password"
+              id="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              className="mt-2 p-3 w-full border border-gray-300 rounded-md"
+            />
+          </div>
+
+          {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+
+          <button
+            type="submit"
+            className="w-full py-3 bg-green-600 text-white rounded-md hover:bg-green-500 transition"
+          >
+            Se connecter
+          </button>
+        </form>
+
+        <div className="mt-6 text-center">
+          <p className="text-sm text-white">
+            Pas encore de compte ?{' '}
+            <a href="/inscription" className="text-green-600 hover:text-green-500 underline">
+              Créer un compte
+            </a>
+          </p>
+          <p className="text-sm text-white mt-4">
+            Déjà un compte ?{' '}
+            <a href="/compte" className="text-green-600 hover:text-green-500 underline">
+              Voir mon profil
+            </a>
+          </p>
         </div>
-      </main>
+      </div>
       <Footer />
     </div>
   );

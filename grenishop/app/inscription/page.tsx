@@ -1,106 +1,126 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import Footer from '../components/fin'; // Ton footer reste ici
+
+const mockUser = {
+  email: 'jean.dupont@email.com',
+  password: '123456',
+};
 
 export default function Inscription() {
+  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
-  const router = useRouter();
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.playbackRate = 0.5;
+    }
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (email === '' || password === '' || confirmPassword === '') {
-      setError('Tous les champs sont obligatoires');
-      return;
-    }
 
     if (password !== confirmPassword) {
       setError('Les mots de passe ne correspondent pas');
       return;
     }
 
-    setError('');
-    alert('Inscription réussie');
-    router.push('/connexion'); // Après inscription, retour à la connexion
+    if (email === mockUser.email && password === mockUser.password) {
+      router.push('/compte');
+    } else {
+      setError('Problème lors de l\'inscription');
+    }
   };
 
   return (
-    <>
-      <head>
-        <title>Inscription</title>
-      </head>
+    <div className="relative min-h-screen flex items-center justify-center">
+      {/* Vidéo de fond */}
+      <div className="fixed inset-0 -z-10 bg-transparent">
+        <video
+          ref={videoRef}
+          src="/videos/che.mp4"
+          autoPlay
+          muted
+          loop
+          className="w-full h-full object-cover"
+        />
+      </div>
 
-      <div className="flex justify-center items-center h-screen bg-gray-100">
-        <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-sm">
-          <h2 className="text-2xl font-semibold text-center mb-6">Créer un compte</h2>
+      {/* Cadre d'inscription flouté */}
+      <div className="w-full max-w-md mx-auto bg-white/70 backdrop-blur-lg p-8 rounded-xl shadow-md">
+        <h1 className="text-3xl font-semibold mb-6 text-center text-black">Créer un compte</h1>
 
-          {error && <div className="text-red-500 text-sm mb-4">{error}</div>}
-
-          <form onSubmit={handleSubmit}>
-            <div className="mb-4">
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                Email
-              </label>
-              <input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                placeholder="exemple@email.com"
-                required
-              />
-            </div>
-
-            <div className="mb-4">
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                Mot de passe
-              </label>
-              <input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                placeholder="********"
-                required
-              />
-            </div>
-
-            <div className="mb-6">
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
-                Confirmer le mot de passe
-              </label>
-              <input
-                id="confirmPassword"
-                type="password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                placeholder="********"
-                required
-              />
-            </div>
-
-            <button
-              type="submit"
-              className="w-full bg-green-600 text-white py-2 rounded-md hover:bg-green-500 transition"
-            >
-              S'inscrire
-            </button>
-          </form>
-
-          <div className="mt-4 text-center">
-            <a href="/connexion" className="text-sm text-gray-600 hover:text-gray-500">
-              Déjà un compte ? Connectez-vous
-            </a>
+        <form onSubmit={handleSubmit}>
+          <div className="mb-4">
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+              Email
+            </label>
+            <input
+              type="email"
+              id="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="mt-2 p-3 w-full border border-gray-300 rounded-md"
+            />
           </div>
+
+          <div className="mb-4">
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+              Mot de passe
+            </label>
+            <input
+              type="password"
+              id="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              className="mt-2 p-3 w-full border border-gray-300 rounded-md"
+            />
+          </div>
+
+          <div className="mb-4">
+            <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
+              Confirmer le mot de passe
+            </label>
+            <input
+              type="password"
+              id="confirmPassword"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+              className="mt-2 p-3 w-full border border-gray-300 rounded-md"
+            />
+          </div>
+
+          {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+
+          <button
+            type="submit"
+            className="w-full py-3 bg-green-600 text-white rounded-md hover:bg-green-500 transition"
+          >
+            S'inscrire
+          </button>
+        </form>
+
+        <div className="mt-6 text-center">
+          <p className="text-sm text-gray-700">
+            Déjà un compte ?{' '}
+            <a href="/connexion" className="text-green-600 hover:text-green-500 underline">
+              Se connecter
+            </a>
+          </p>
         </div>
       </div>
-    </>
+
+      {/* Footer */}
+      <Footer />
+    </div>
   );
 }
