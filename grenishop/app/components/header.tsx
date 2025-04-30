@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -92,9 +92,49 @@ export default function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
-            <Link href="/" className="text-2xl font-bold text-green-700">
-              GreniShop
+            {/* Lien avec l'image */}
+            <Link href="./" className="flex items-center text-2xl font-bold text-green-700">
+              {/* Image plus grande et alignée à gauche */}
+              <img
+              src="/logo.png"
+              alt="Logo"
+              className="h-28 w-28 mr-4"
+              />
+
+              
             </Link>
+          </div>
+
+          {/* Barre de recherche */}
+          <div className="flex-1 flex justify-center relative">
+            <input
+              type="text"
+              placeholder="Rechercher..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              onKeyDown={handleSearch}
+              className="w-full max-w-md px-3 py-2 border rounded-md"
+            />
+            {suggestions.length > 0 && (
+              <ul className="absolute top-full mt-2 w-full max-w-md bg-white border border-gray-300 rounded-md shadow z-50">
+                {suggestions.map((item, index) => (
+                  <li
+                    key={index}
+                    onClick={() => {
+                      setSearch(item);
+                      if (categories.some((cat) => cat.toLowerCase() === item.toLowerCase())) {
+                        router.push(`/catalogue?categorie=${encodeURIComponent(item.toLowerCase())}`);
+                      } else {
+                        router.push(`/search?query=${encodeURIComponent(item)}`);
+                      }
+                    }}
+                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                  >
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
 
           <nav className="flex items-center space-x-4">
@@ -146,9 +186,7 @@ export default function Header() {
                     {user?.Prenom || "Utilisateur"}
                   </span>
                   <svg
-                    className={`ml-2 h-5 w-5 transition-transform ${
-                      accountMenuOpen ? "rotate-180" : ""
-                    }`}
+                    className={`ml-2 h-5 w-5 transition-transform ${accountMenuOpen ? "rotate-180" : ""}`}
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 20 20"
                     fill="currentColor"

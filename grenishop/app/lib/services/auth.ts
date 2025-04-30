@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5240";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 console.log("URL de l'API:", API_URL);
 
 // Types

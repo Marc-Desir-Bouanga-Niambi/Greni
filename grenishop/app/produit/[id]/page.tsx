@@ -106,9 +106,9 @@ export default function ProductDetail() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white">
+      <div className="flex flex-col min-h-screen bg-white">
         <Header />
-        <main className="px-6 py-8 pt-24 pb-32">
+        <main className="px-6 py-8 pt-24 pb-32 flex-grow">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-700 mx-auto"></div>
           </div>
@@ -120,9 +120,9 @@ export default function ProductDetail() {
 
   if (error || !product) {
     return (
-      <div className="min-h-screen bg-white">
+      <div className="flex flex-col min-h-screen bg-white">
         <Header />
-        <main className="px-6 py-8 pt-24 pb-32">
+        <main className="px-6 py-8 pt-24 pb-32 flex-grow">
           <div className="text-center text-red-600">
             Erreur: {error || "Produit non trouvé"}
           </div>
@@ -133,7 +133,8 @@ export default function ProductDetail() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="flex flex-col min-h-screen bg-gradient-to-b from-green-50 to-green-100">
+
       <Header />
       {notification && (
         <div
@@ -144,7 +145,8 @@ export default function ProductDetail() {
           {notification.message}
         </div>
       )}
-      <main className="px-6 py-8 pt-24 pb-32">
+
+      <main className="px-6 py-8 pt-24 pb-32 flex-grow">
         <div className="max-w-4xl mx-auto">
           <div className="bg-white rounded-lg shadow-lg p-6">
             <h1 className="text-3xl font-bold mb-4">{product.nom_produit}</h1>
@@ -154,12 +156,10 @@ export default function ProductDetail() {
                   Informations du produit
                 </h2>
                 <p className="mb-2">
-                  <span className="font-semibold">Marque :</span>{" "}
-                  {product.nom_marque}
+                  <span className="font-semibold">Marque :</span> {product.nom_marque}
                 </p>
                 <p className="mb-2">
-                  <span className="font-semibold">Modèle :</span>{" "}
-                  {product.nom_modele}
+                  <span className="font-semibold">Modèle :</span> {product.nom_modele}
                 </p>
                 <div className="mb-4">
                   <label className="block font-semibold mb-2">État :</label>
@@ -217,9 +217,7 @@ export default function ProductDetail() {
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    className={`h-5 w-5 mr-2 transition-transform ${
-                      isFavorite ? "scale-110" : ""
-                    }`}
+                    className={`h-5 w-5 mr-2 transition-transform ${isFavorite ? "scale-110" : ""}`}
                     fill={isFavorite ? "currentColor" : "none"}
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -238,6 +236,7 @@ export default function ProductDetail() {
           </div>
         </div>
       </main>
+
       <Footer />
     </div>
   );

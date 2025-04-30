@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useRef, useState } from "react";
 import { InscriptionData, inscription } from "../lib/services/auth";
+import Footer from '../components/fin';
 
 export default function Inscription() {
   const router = useRouter();
@@ -78,11 +79,11 @@ export default function Inscription() {
   }
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center">
+    <div className="relative min-h-screen flex items-center justify-center pb-16"> {/* Ajout de pb-16 ici */}
       <div className="fixed inset-0 -z-10 bg-transparent">
         <video
           ref={videoRef}
-          src="/videos/tortue.mp4"
+          src="/videos/che.mp4"
           autoPlay
           muted
           loop
@@ -212,6 +213,9 @@ export default function Inscription() {
           </p>
         </div>
       </div>
+
+      {/* Footer */}
+      <Footer />
     </div>
   );
 }

@@ -63,28 +63,29 @@ export default function Accueil() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-white text-gray-900">
+    <div className="flex flex-col min-h-screen bg-gradient-to-b from-green-50 to-green-100">
+
       <Header />
 
       <main className="flex-grow px-6 py-8 pt-24 pb-32">
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+            {/* Première image décorative */}
+            <div className="col-span-full">
+              <div className="relative w-full h-64 rounded-xl overflow-hidden shadow-md">
+                <Image
+                  src={decorImages[0].src}
+                  alt={decorImages[0].alt}
+                  fill
+                  className="object-cover"
+                  priority
+                />
+              </div>
+            </div>
+
+            {/* Produits avec insertion conditionnelle d’images décoratives */}
             {produits.map((produit, index) => (
               <React.Fragment key={produit.id_produit}>
-                {index === 0 && (
-                  <div className="col-span-full">
-                    <div className="relative w-full h-64 rounded-xl overflow-hidden shadow-md">
-                      <Image
-                        src={decorImages[0].src}
-                        alt={decorImages[0].alt}
-                        fill
-                        className="object-cover"
-                        priority
-                      />
-                    </div>
-                  </div>
-                )}
-
                 <div className="bg-white border rounded-xl shadow-sm p-4 transform hover:scale-105 hover:shadow-lg transition duration-300">
                   <div className="relative w-full h-48 rounded-md mb-3 overflow-hidden">
                     <div className="w-full h-full bg-gray-100 flex items-center justify-center">
@@ -133,34 +134,38 @@ export default function Accueil() {
                     Voir le produit
                   </Link>
                 </div>
+
+                {/* Deuxième image décorative après 3 produits */}
+                {index === 2 && (
+                  <div className="col-span-full">
+                    <div className="relative w-full h-64 rounded-xl overflow-hidden shadow-md">
+                      <Image
+                        src={decorImages[1].src}
+                        alt={decorImages[1].alt}
+                        fill
+                        className="object-cover"
+                        priority
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* Troisième image décorative après 6 produits */}
+                {index === 5 && (
+                  <div className="col-span-full">
+                    <div className="relative w-full h-64 rounded-xl overflow-hidden shadow-md">
+                      <Image
+                        src={decorImages[2].src}
+                        alt={decorImages[2].alt}
+                        fill
+                        className="object-cover"
+                        priority
+                      />
+                    </div>
+                  </div>
+                )}
               </React.Fragment>
             ))}
-
-            {/* Deuxième image décorative */}
-            <div className="col-span-full">
-              <div className="relative w-full h-64 rounded-xl overflow-hidden shadow-md">
-                <Image
-                  src={decorImages[1].src}
-                  alt={decorImages[1].alt}
-                  fill
-                  className="object-cover"
-                  priority
-                />
-              </div>
-            </div>
-
-            {/* Troisième image décorative */}
-            <div className="col-span-full">
-              <div className="relative w-full h-64 rounded-xl overflow-hidden shadow-md">
-                <Image
-                  src={decorImages[2].src}
-                  alt={decorImages[2].alt}
-                  fill
-                  className="object-cover"
-                  priority
-                />
-              </div>
-            </div>
           </div>
         </div>
       </main>

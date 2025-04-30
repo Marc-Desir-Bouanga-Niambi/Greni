@@ -39,7 +39,8 @@ export default function Favoris() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="flex flex-col min-h-screen bg-gradient-to-b from-green-50 to-green-100">
+
       <Header />
       <main className="px-6 py-8 pt-24 pb-32">
         <div className="max-w-4xl mx-auto">

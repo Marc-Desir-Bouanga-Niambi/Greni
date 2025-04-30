@@ -4,7 +4,7 @@ import Footer from '../components/footer';
 
 export default function APropos() {
   return (
-    <div className="min-h-screen flex flex-col bg-white">
+    <div className="flex flex-col min-h-screen bg-gradient-to-b from-green-50 to-green-100">
       <Header />
 
       <main className="flex-grow px-6 py-8 pt-24 pb-32">
@@ -36,7 +36,7 @@ export default function APropos() {
           <p className="mb-2">Nous sommes trois passionnés unis par la même vision :</p>
           <ul className="list-disc list-inside mb-6">
             <li><strong>Keliane Kossa</strong></li>
-            <li><strong>Sébastien Guelly</strong></li>
+            <li><strong>Sebastien Guély</strong></li>
             <li><strong>Marc Désir Bouanga Niambi</strong></li>
           </ul>
           <p className="mb-6">

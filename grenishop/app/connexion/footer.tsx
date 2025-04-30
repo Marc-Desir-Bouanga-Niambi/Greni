@@ -54,7 +54,7 @@ export default function C_Footer() {
             </div>
           </div>
           <div className="text-gray-100/80 text-sm font-light tracking-wider md:pr-4">
-            © 2025 Grenishop. Tous droits réservés.
+             Grenishop. Tous droits réservés.
           </div>
         </div>
       </div>

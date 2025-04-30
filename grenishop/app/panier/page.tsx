@@ -113,7 +113,6 @@ export default function Panier() {
       const token = localStorage.getItem("token");
       const adresseComplete = `${data.adresse_livraison}, ${data.code_postal} ${data.ville}, ${data.pays}`;
 
-      // Vérifier la disponibilité des produits
       for (const item of panier) {
         const stock = await produitService.getStock(
           item.id_produit,
@@ -149,23 +148,19 @@ export default function Panier() {
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error("Réponse d'erreur:", errorText);
         throw new Error(
           `Erreur lors de la création de la commande: ${errorText}`
         );
       }
 
-      // Vider le panier et rediriger vers la page des commandes
       localStorage.removeItem("panier");
       setPanier([]);
 
-      // Mettre à jour le compteur du panier
       const event = new CustomEvent("panierUpdated", { detail: 0 });
       window.dispatchEvent(event);
 
       router.push("/commandes");
     } catch (error) {
-      console.error("Erreur détaillée:", error);
       alert(
         error instanceof Error
           ? error.message
@@ -176,9 +171,9 @@ export default function Panier() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white">
+      <div className="flex flex-col min-h-screen bg-white">
         <Header />
-        <main className="px-6 py-8 pt-24 pb-32">
+        <main className="flex-grow px-6 py-8 pt-24 pb-32">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-700 mx-auto"></div>
           </div>
@@ -189,9 +184,10 @@ export default function Panier() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="flex flex-col min-h-screen bg-gradient-to-b from-green-50 to-green-100">
+
       <Header />
-      <main className="px-6 py-8 pt-24 pb-32">
+      <main className="flex-grow px-6 py-8 pt-24 pb-32">
         <div className="max-w-4xl mx-auto">
           <h1 className="text-3xl font-bold mb-8">Mon panier</h1>
 
