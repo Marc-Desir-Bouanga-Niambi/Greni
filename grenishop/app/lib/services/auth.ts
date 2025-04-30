@@ -1,3 +1,5 @@
+import axios from "axios";
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5240";
 
 // Types
@@ -27,69 +29,95 @@ export interface ConnexionData {
   MotDePasse: string;
 }
 
-// Configuration des requêtes
-const defaultHeaders = {
-  Accept: "application/json",
-  "Content-Type": "application/json",
-};
+export interface AuthResponse {
+  message: string;
+  token: string;
+  compte: Compte;
+}
 
-// Fonction utilitaire pour gérer les erreurs
-const handleResponse = async (response: Response) => {
-  if (!response.ok) {
-    let errorMessage = `Erreur HTTP: ${response.status} - ${response.statusText}`;
-    try {
-      const errorData = await response.json();
-      if (errorData && typeof errorData === "object") {
-        errorMessage =
-          errorData.message || errorData.error || JSON.stringify(errorData);
-      }
-    } catch (e) {
-      console.error("Erreur lors de la lecture de la réponse:", e);
-    }
-    throw new Error(errorMessage);
+// Configuration d'axios pour inclure le token dans toutes les requêtes
+const api = axios.create({
+  baseURL: API_URL,
+});
+
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("token");
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
   }
-  return response.json();
-};
+  return config;
+});
 
-// Service d'authentification
-export const authService = {
-  // Inscription
-  inscription: async (data: InscriptionData): Promise<InscriptionResponse> => {
-    try {
-      console.log("Tentative d'inscription avec les données:", data);
+export async function login(
+  email: string,
+  motDePasse: string
+): Promise<Compte> {
+  try {
+    console.log("Tentative de connexion avec:", { email });
+    const response = await api.post<AuthResponse>("/api/Comptes/connexion", {
+      Email: email,
+      MotDePasse: motDePasse,
+    });
+    console.log("Réponse de connexion:", response.data);
+    localStorage.setItem("token", response.data.token);
+    return response.data.compte;
+  } catch (error: any) {
+    console.error(
+      "Erreur de connexion:",
+      error.response?.data || error.message
+    );
+    throw new Error(error.response?.data?.message || "Échec de connexion");
+  }
+}
 
-      const response = await fetch(`${API_URL}/api/Comptes/inscription`, {
-        method: "POST",
-        headers: defaultHeaders,
-        body: JSON.stringify(data),
-      });
+export async function getProfil(): Promise<Compte> {
+  try {
+    const response = await api.get<Compte>("/api/Comptes/profil");
+    return response.data;
+  } catch (error) {
+    console.error("Erreur de récupération du profil:", error);
+    throw new Error("Erreur lors de la récupération du profil");
+  }
+}
 
-      console.log("Statut de la réponse:", response.status);
-      return handleResponse(response);
-    } catch (error) {
-      console.error("Erreur détaillée:", error);
-      throw error;
+export async function inscription(
+  data: InscriptionData
+): Promise<InscriptionResponse> {
+  try {
+    // Vérification des données
+    if (!data.nom || !data.prenom || !data.email || !data.motDePasse) {
+      throw new Error("Tous les champs sont obligatoires");
     }
-  },
 
-  // Connexion
-  connexion: async (
-    data: ConnexionData
-  ): Promise<{ message: string; compte: Compte }> => {
-    try {
-      console.log("Tentative de connexion avec les données:", data);
+    // Transformation des données pour correspondre à l'API
+    const apiData = {
+      Nom: data.nom.trim(),
+      Prenom: data.prenom.trim(),
+      Email: data.email.trim(),
+      MotDePasse: data.motDePasse,
+    };
 
-      const response = await fetch(`${API_URL}/api/Comptes/connexion`, {
-        method: "POST",
-        headers: defaultHeaders,
-        body: JSON.stringify(data),
-      });
+    console.log("Tentative d'inscription avec:", apiData);
+    const response = await api.post<InscriptionResponse>(
+      "/api/Comptes/inscription",
+      apiData
+    );
+    console.log("Réponse d'inscription:", response.data);
+    return response.data;
+  } catch (error: any) {
+    console.error("Erreur d'inscription:", {
+      message: error.message,
+      response: error.response?.data,
+      status: error.response?.status,
+    });
+    throw new Error(
+      error.response?.data?.message || "Erreur lors de l'inscription"
+    );
+  }
+}
 
-      console.log("Statut de la réponse:", response.status);
-      return handleResponse(response);
-    } catch (error) {
-      console.error("Erreur détaillée:", error);
-      throw error;
-    }
-  },
-};
+export function logout(): void {
+  localStorage.removeItem("token");
+}
+
+export default api;

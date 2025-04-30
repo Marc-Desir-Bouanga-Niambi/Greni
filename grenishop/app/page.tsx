@@ -1,17 +1,24 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import Footer from "./components/footer";
 import Header from "./components/header";
 import { Produit, produitService } from "./lib/services/api";
 
-const decorImages = ['/images/forêt.jpg', '/images/montagne.jpg', '/images/océan.jpg'];
+const decorImages = [
+  "/images/forêt.jpg",
+  "/images/montagne.jpg",
+  "/images/océan.jpg",
+];
 
 const renderStars = (rating, productId) => {
   const stars = [1, 2, 3, 4, 5];
   return (
-    <Link href={`/produit/${productId}`} className="flex items-center space-x-1 group cursor-pointer">
+    <Link
+      href={`/produit/${productId}`}
+      className="flex items-center space-x-1 group cursor-pointer"
+    >
       {stars.map((star) => (
         <svg
           key={star}
@@ -19,7 +26,9 @@ const renderStars = (rating, productId) => {
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
-          className={`w-5 h-5 group-hover:text-yellow-500 ${star <= rating ? 'text-yellow-400' : 'text-gray-300'}`}
+          className={`w-5 h-5 group-hover:text-yellow-500 ${
+            star <= rating ? "text-yellow-400" : "text-gray-300"
+          }`}
         >
           <path
             strokeLinecap="round"
@@ -34,6 +43,54 @@ const renderStars = (rating, productId) => {
 };
 
 export default function Accueil() {
+  const [produits, setProduits] = useState<Produit[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const chargerProduits = async () => {
+      try {
+        const data = await produitService.getAll();
+        setProduits(data);
+      } catch (err) {
+        setError("Erreur lors du chargement des produits");
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    chargerProduits();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex flex-col bg-white text-gray-900">
+        <Header />
+        <main className="flex-grow px-6 py-8 pt-24 pb-32">
+          <div className="max-w-6xl mx-auto text-center">
+            <p>Chargement des produits...</p>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex flex-col bg-white text-gray-900">
+        <Header />
+        <main className="flex-grow px-6 py-8 pt-24 pb-32">
+          <div className="max-w-6xl mx-auto text-center text-red-500">
+            <p>{error}</p>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex flex-col bg-white text-gray-900">
       <Header />
@@ -41,8 +98,8 @@ export default function Accueil() {
       <main className="flex-grow px-6 py-8 pt-24 pb-32">
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
-            {products.map((product, index) => (
-              <React.Fragment key={product.id}>
+            {produits.map((produit, index) => (
+              <React.Fragment key={produit.id_produit}>
                 {index === 0 && (
                   <div className="col-span-full">
                     <img
@@ -57,53 +114,60 @@ export default function Accueil() {
                   <div
                     className="w-full h-48 bg-gray-300 rounded-md mb-3"
                     style={{
-                      backgroundImage: `url(${product.imageUrl})`,
-                      backgroundSize: 'cover',
-                      backgroundPosition: 'center',
+                      backgroundImage: `url(${
+                        produit.Modele?.Tag || "/images/default-product.jpg"
+                      })`,
+                      backgroundSize: "cover",
+                      backgroundPosition: "center",
                     }}
                   ></div>
-                  <div className="text-lg font-semibold mb-3">{product.name}</div>
-                  <div className="text-gray-700 font-medium mb-3">{product.price}</div>
+                  <div className="text-lg font-semibold mb-3">
+                    {produit.Nom}
+                  </div>
+                  <div className="text-gray-700 font-medium mb-3">
+                    {produit.Etat === "Neuf"
+                      ? `${produit.Modele?.prix_neuf}€`
+                      : `${produit.Modele?.prix_occasion}€`}
+                  </div>
 
                   <div className="mb-3 flex justify-between items-center">
-                    {renderStars(product.rating, product.id)}
+                    {renderStars(4, produit.id_produit)}
                     <Link
-                      href={`/produit/${product.id}`}
+                      href={`/produit/${produit.id_produit}`}
                       className="text-black text-sm hover:underline"
                     >
-                      {product.numReviews} Avis
+                      Voir les détails
                     </Link>
                   </div>
 
-                    <Link
-                      href={`/produit/${product.produitID}`}
-                      className="inline-block mt-auto px-4 py-2 bg-green-700 text-white rounded-md hover:bg-green-600 transition"
-                    >
-                      Voir le produit
-                    </Link>
-                  </div>
-                ))}
-              </div>
+                  <Link
+                    href={`/produit/${produit.id_produit}`}
+                    className="inline-block mt-auto px-4 py-2 bg-green-700 text-white rounded-md hover:bg-green-600 transition"
+                  >
+                    Voir le produit
+                  </Link>
+                </div>
+              </React.Fragment>
+            ))}
 
-              {/* Deuxième image décorative */}
-              <div className="mb-8">
-                <img
-                  src={decorImages[1]}
-                  alt="Décoration"
-                  className="rounded-xl shadow-md w-full h-64 object-cover"
-                />
-              </div>
+            {/* Deuxième image décorative */}
+            <div className="col-span-full">
+              <img
+                src={decorImages[1]}
+                alt="Décoration"
+                className="rounded-xl shadow-md w-full h-64 object-cover"
+              />
+            </div>
 
-              {/* Troisième image décorative */}
-              <div className="mb-8">
-                <img
-                  src={decorImages[2]}
-                  alt="Décoration"
-                  className="rounded-xl shadow-md w-full h-64 object-cover"
-                />
-              </div>
-            </>
-          )}
+            {/* Troisième image décorative */}
+            <div className="col-span-full">
+              <img
+                src={decorImages[2]}
+                alt="Décoration"
+                className="rounded-xl shadow-md w-full h-64 object-cover"
+              />
+            </div>
+          </div>
         </div>
       </main>
 

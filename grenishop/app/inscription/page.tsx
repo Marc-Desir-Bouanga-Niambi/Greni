@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useRef, useState } from "react";
-import { authService, InscriptionData } from "../lib/services/auth";
+import { InscriptionData, inscription } from "../lib/services/auth";
 
 export default function Inscription() {
   const router = useRouter();
@@ -13,7 +13,6 @@ export default function Inscription() {
     email: "",
     motDePasse: "",
   });
-  const [confirmationMotDePasse, setConfirmationMotDePasse] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -30,20 +29,16 @@ export default function Inscription() {
     setError("");
     setLoading(true);
 
-    if (formData.motDePasse !== confirmationMotDePasse) {
-      setError("Les mots de passe ne correspondent pas");
-      setLoading(false);
-      return;
-    }
-
     try {
-      await authService.inscription(formData);
-      setSuccess(true);
-      setTimeout(() => {
-        router.push("/connexion");
-      }, 2000);
+      const response = await inscription(formData);
+      if (response.message === "Inscription réussie") {
+        setSuccess(true);
+        setTimeout(() => {
+          router.push("/connexion");
+        }, 2000);
+      }
     } catch (err: any) {
-      setError(err.message || "Une erreur est survenue lors de l'inscription");
+      setError(err.message || "Erreur lors de l'inscription");
     } finally {
       setLoading(false);
     }
@@ -191,24 +186,6 @@ export default function Inscription() {
               name="motDePasse"
               value={formData.motDePasse}
               onChange={handleChange}
-              required
-              className="mt-2 p-3 w-full border border-gray-300 rounded-md"
-            />
-          </div>
-
-          <div className="mb-4">
-            <label
-              htmlFor="confirmationMotDePasse"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Confirmer le mot de passe
-            </label>
-            <input
-              type="password"
-              id="confirmationMotDePasse"
-              name="confirmationMotDePasse"
-              value={confirmationMotDePasse}
-              onChange={(e) => setConfirmationMotDePasse(e.target.value)}
               required
               className="mt-2 p-3 w-full border border-gray-300 rounded-md"
             />
