@@ -1,6 +1,7 @@
 "use client";
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -12,6 +13,12 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export default function Inscription() {
+=======
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+
+export default function Inscription() {
+>>>>>>> Stashed changes
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -19,6 +26,9 @@ export default function Inscription() {
   const [prenom, setPrenom] = useState("");
   const [motDePasse, setMotDePasse] = useState("");
   const [error, setError] = useState("");
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
   const router = useRouter();
   const [formData, setFormData] = useState<InscriptionData>({
@@ -32,6 +42,7 @@ export default function Inscription() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
     setError("");
     setLoading(true);
@@ -126,6 +137,35 @@ export default function Inscription() {
     } catch (error) {
       console.error("Erreur:", error);
     }
+=======
+    try {
+      const response = await fetch(
+        "https://grenishop-agdfdkhbcpf8erfv.francecentral-01.azurewebsites.net",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            nom: nom,
+            prenom: prenom,
+            email: email,
+            motDePasse: motDePasse,
+          }),
+        }
+      );
+      const data = await response.json();
+      if (response.ok) {
+        // Redirection vers la page de connexion
+        router.push("/connexion");
+      } else {
+        // Gérer l'erreur
+        console.error(data.message);
+      }
+    } catch (error) {
+      console.error("Erreur:", error);
+    }
+>>>>>>> Stashed changes
   };
 
   return (
@@ -148,8 +188,46 @@ export default function Inscription() {
                 htmlFor="nom"
                 className="block text-sm font-medium text-gray-700"
               >
+<<<<<<< Updated upstream
 >>>>>>> Stashed changes
                 Nom
+=======
+                Nom
+              </label>
+              <input
+                id="nom"
+                type="text"
+                value={nom}
+                onChange={(e) => setNom(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                required
+              />
+            </div>
+
+            <div className="mb-4">
+              <label
+                htmlFor="prenom"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Prénom
+              </label>
+              <input
+                id="prenom"
+                type="text"
+                value={prenom}
+                onChange={(e) => setPrenom(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                required
+              />
+            </div>
+
+            <div className="mb-4">
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Email
+>>>>>>> Stashed changes
               </label>
               <input
                 id="nom"
@@ -176,6 +254,7 @@ export default function Inscription() {
 
             <div className="mb-4">
               <label
+<<<<<<< Updated upstream
                 htmlFor="prenom"
                 className="block text-sm font-medium text-gray-700"
               >
@@ -232,6 +311,11 @@ export default function Inscription() {
 
             <div className="mb-4">
               <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700"
+              >
+>>>>>>> Stashed changes
+=======
                 htmlFor="password"
                 className="block text-sm font-medium text-gray-700"
               >
