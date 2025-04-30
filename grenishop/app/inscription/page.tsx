@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { authService, InscriptionData } from "../lib/services/auth";
 
 export default function Inscription() {
@@ -13,27 +13,37 @@ export default function Inscription() {
     email: "",
     motDePasse: "",
   });
+  const [confirmationMotDePasse, setConfirmationMotDePasse] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.playbackRate = 0.5;
+    }
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setLoading(true);
 
+    if (formData.motDePasse !== confirmationMotDePasse) {
+      setError("Les mots de passe ne correspondent pas");
+      setLoading(false);
+      return;
+    }
+
     try {
-      const response = await authService.inscription(formData);
-      if (response.success) {
+      await authService.inscription(formData);
+      setSuccess(true);
+      setTimeout(() => {
         router.push("/connexion");
-      }
+      }, 2000);
     } catch (err: any) {
-      if (err.response?.data?.errors) {
-        setError(err.response.data.errors.join("\n"));
-      } else {
-        setError(
-          err.message || "Une erreur est survenue lors de l'inscription"
-        );
-      }
+      setError(err.message || "Une erreur est survenue lors de l'inscription");
     } finally {
       setLoading(false);
     }
@@ -47,16 +57,51 @@ export default function Inscription() {
     }));
   };
 
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Créer un compte
-          </h2>
+  if (success) {
+    return (
+      <div className="relative min-h-screen flex items-center justify-center">
+        <div className="fixed inset-0 -z-10 bg-transparent">
+          <video
+            ref={videoRef}
+            src="/videos/tortue.mp4"
+            autoPlay
+            muted
+            loop
+            className="w-full h-full object-cover"
+          />
         </div>
+        <div className="w-full max-w-md mx-auto bg-white/70 backdrop-blur-lg p-8 rounded-xl shadow-md">
+          <h1 className="text-3xl font-semibold mb-6 text-center text-black">
+            Inscription réussie !
+          </h1>
+          <p className="text-center text-gray-600">
+            Redirection vers la page de connexion...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="relative min-h-screen flex items-center justify-center">
+      <div className="fixed inset-0 -z-10 bg-transparent">
+        <video
+          ref={videoRef}
+          src="/videos/tortue.mp4"
+          autoPlay
+          muted
+          loop
+          className="w-full h-full object-cover"
+        />
+      </div>
+
+      <div className="w-full max-w-md mx-auto bg-white/70 backdrop-blur-lg p-8 rounded-xl shadow-md">
+        <h1 className="text-3xl font-semibold mb-6 text-center text-black">
+          Inscription
+        </h1>
+
         {error && (
-          <div className="bg-red-50 border-l-4 border-red-400 p-4">
+          <div className="bg-red-50 border-l-4 border-red-400 p-4 mb-4">
             <div className="flex">
               <div className="flex-shrink-0">
                 <svg
@@ -72,93 +117,118 @@ export default function Inscription() {
                 </svg>
               </div>
               <div className="ml-3">
-                <p className="text-sm text-red-700 whitespace-pre-line">
-                  {error}
-                </p>
+                <p className="text-sm text-red-700">{error}</p>
               </div>
             </div>
           </div>
         )}
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="rounded-md shadow-sm -space-y-px">
-            <div>
-              <label htmlFor="nom" className="sr-only">
-                Nom
-              </label>
-              <input
-                id="nom"
-                name="nom"
-                type="text"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm"
-                placeholder="Nom"
-                value={formData.nom}
-                onChange={handleChange}
-              />
-            </div>
-            <div>
-              <label htmlFor="prenom" className="sr-only">
-                Prénom
-              </label>
-              <input
-                id="prenom"
-                name="prenom"
-                type="text"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm"
-                placeholder="Prénom"
-                value={formData.prenom}
-                onChange={handleChange}
-              />
-            </div>
-            <div>
-              <label htmlFor="email" className="sr-only">
-                Adresse email
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm"
-                placeholder="Adresse email"
-                value={formData.email}
-                onChange={handleChange}
-              />
-            </div>
-            <div>
-              <label htmlFor="motDePasse" className="sr-only">
-                Mot de passe
-              </label>
-              <input
-                id="motDePasse"
-                name="motDePasse"
-                type="password"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm"
-                placeholder="Mot de passe"
-                value={formData.motDePasse}
-                onChange={handleChange}
-              />
-            </div>
+
+        <form onSubmit={handleSubmit}>
+          <div className="mb-4">
+            <label
+              htmlFor="nom"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Nom
+            </label>
+            <input
+              type="text"
+              id="nom"
+              name="nom"
+              value={formData.nom}
+              onChange={handleChange}
+              required
+              className="mt-2 p-3 w-full border border-gray-300 rounded-md"
+            />
           </div>
 
-          <div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+          <div className="mb-4">
+            <label
+              htmlFor="prenom"
+              className="block text-sm font-medium text-gray-700"
             >
-              {loading ? "Inscription en cours..." : "S'inscrire"}
-            </button>
+              Prénom
+            </label>
+            <input
+              type="text"
+              id="prenom"
+              name="prenom"
+              value={formData.prenom}
+              onChange={handleChange}
+              required
+              className="mt-2 p-3 w-full border border-gray-300 rounded-md"
+            />
           </div>
+
+          <div className="mb-4">
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Email
+            </label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              required
+              className="mt-2 p-3 w-full border border-gray-300 rounded-md"
+            />
+          </div>
+
+          <div className="mb-4">
+            <label
+              htmlFor="motDePasse"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Mot de passe
+            </label>
+            <input
+              type="password"
+              id="motDePasse"
+              name="motDePasse"
+              value={formData.motDePasse}
+              onChange={handleChange}
+              required
+              className="mt-2 p-3 w-full border border-gray-300 rounded-md"
+            />
+          </div>
+
+          <div className="mb-4">
+            <label
+              htmlFor="confirmationMotDePasse"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Confirmer le mot de passe
+            </label>
+            <input
+              type="password"
+              id="confirmationMotDePasse"
+              name="confirmationMotDePasse"
+              value={confirmationMotDePasse}
+              onChange={(e) => setConfirmationMotDePasse(e.target.value)}
+              required
+              className="mt-2 p-3 w-full border border-gray-300 rounded-md"
+            />
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full py-3 bg-green-600 text-white rounded-md hover:bg-green-500 transition"
+          >
+            {loading ? "Inscription en cours..." : "S'inscrire"}
+          </button>
         </form>
-        <div className="text-center mt-4">
-          <p className="text-sm text-gray-600">
+
+        <div className="mt-6 text-center">
+          <p className="text-sm text-gray-700">
             Déjà un compte ?{" "}
             <Link
               href="/connexion"
-              className="font-medium text-green-600 hover:text-green-500"
+              className="text-green-600 hover:text-green-500 underline"
             >
               Se connecter
             </Link>
