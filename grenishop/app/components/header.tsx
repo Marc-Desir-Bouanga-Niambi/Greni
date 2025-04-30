@@ -11,6 +11,8 @@ export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [produitsOpen, setProduitsOpen] = useState(false);
   const [suggestions, setSuggestions] = useState([]);
+  const [accountMenuOpen, setAccountMenuOpen] = useState(false);
+  const [panierCount, setPanierCount] = useState(0);
   const { user, isLoggedIn } = useAuthContext();
 
   const categories = ["Vêtements", "Accessoires", "Chaussures", "Autres"];
@@ -25,6 +27,29 @@ export default function Header() {
     "Sac",
     "Jean",
   ];
+
+  useEffect(() => {
+    // Initialiser le compteur du panier
+    const panier = JSON.parse(localStorage.getItem("panier") || "[]");
+    setPanierCount(panier.length);
+
+    // Écouter les mises à jour du panier
+    const handlePanierUpdated = (event: CustomEvent) => {
+      setPanierCount(event.detail);
+    };
+
+    window.addEventListener(
+      "panierUpdated",
+      handlePanierUpdated as EventListener
+    );
+
+    return () => {
+      window.removeEventListener(
+        "panierUpdated",
+        handlePanierUpdated as EventListener
+      );
+    };
+  }, []);
 
   const handleSearch = (e) => {
     if (e.key === "Enter" && search.trim() !== "") {
@@ -85,16 +110,97 @@ export default function Header() {
             >
               Produits
             </Link>
-            {isLoggedIn ? (
-              <Link
-                href="/compte"
-                className="flex items-center text-gray-700 hover:text-green-700 px-3 py-2 rounded-md text-sm font-medium"
+            <Link
+              href="/panier"
+              className="text-gray-700 hover:text-green-700 px-3 py-2 rounded-md text-sm font-medium flex items-center relative"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5 mr-1"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
               >
-                <span className="mr-2">Mon compte</span>
-                <span className="inline-flex items-center justify-center px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">
-                  {user?.Prenom || "Utilisateur"}
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
+                />
+              </svg>
+              Panier
+              {panierCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-green-700 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  {panierCount}
                 </span>
-              </Link>
+              )}
+            </Link>
+            {isLoggedIn ? (
+              <div className="relative">
+                <button
+                  onClick={() => setAccountMenuOpen(!accountMenuOpen)}
+                  className="flex items-center text-gray-700 hover:text-green-700 px-3 py-2 rounded-md text-sm font-medium"
+                >
+                  <span className="mr-2">Mon compte</span>
+                  <span className="inline-flex items-center justify-center px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">
+                    {user?.Prenom || "Utilisateur"}
+                  </span>
+                  <svg
+                    className={`ml-2 h-5 w-5 transition-transform ${
+                      accountMenuOpen ? "rotate-180" : ""
+                    }`}
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </button>
+
+                {accountMenuOpen && (
+                  <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
+                    <div
+                      className="py-1"
+                      role="menu"
+                      aria-orientation="vertical"
+                      aria-labelledby="user-menu"
+                    >
+                      <Link
+                        href="/compte"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        role="menuitem"
+                      >
+                        Mon profil
+                      </Link>
+                      <Link
+                        href="/commandes"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        role="menuitem"
+                      >
+                        Mes commandes
+                      </Link>
+                      <Link
+                        href="/favoris"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        role="menuitem"
+                      >
+                        Ma liste de souhaits
+                      </Link>
+                      <Link
+                        href="/deconnexion"
+                        className="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                        role="menuitem"
+                      >
+                        Se déconnecter
+                      </Link>
+                    </div>
+                  </div>
+                )}
+              </div>
             ) : (
               <Link
                 href="/connexion"

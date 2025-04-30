@@ -1,28 +1,21 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import Footer from '../components/fin';
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import Footer from "../components/fin";
+import { useAuthContext } from "../context/AuthContext";
 
 export default function Deconnexion() {
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const router = useRouter();
+  const { logout } = useAuthContext();
 
   useEffect(() => {
-    // On peut déjà supprimer les données de session dès qu'on arrive sur la page
-    localStorage.removeItem('userSession'); // Ou supprimer les cookies si nécessaire
-  }, []);
-
-  const handleLogout = () => {
-    // Supprimer les données de session (localStorage ou cookies)
-    localStorage.removeItem('userSession'); // Exemple pour localStorage
-
-    // En cas d'erreur lors de la déconnexion (par exemple API qui échoue), tu peux gérer un état d'erreur ici
-    // Par exemple, si l'API de déconnexion échoue, tu peux afficher un message d'erreur
-
-    // Rediriger vers la page de connexion après déconnexion
-    router.push('/connexion');
-  };
+    // Supprimer le token et déconnecter l'utilisateur
+    logout();
+    // Rediriger vers la page d'accueil
+    router.push("/");
+  }, [logout, router]);
 
   return (
     <div className="relative min-h-screen flex items-center justify-center flex-col">
@@ -42,19 +35,12 @@ export default function Deconnexion() {
 
       {/* Cadre de déconnexion */}
       <div className="w-full max-w-md mx-auto bg-white/70 backdrop-blur-md p-8 rounded-xl shadow-md z-10">
-        <h1 className="text-3xl font-semibold mb-6 text-center text-white">Se déconnecter</h1>
-
+        <h1 className="text-3xl font-semibold mb-6 text-center text-white">
+          Déconnexion en cours...
+        </h1>
         <p className="text-white mb-4 text-center">
-          Êtes-vous sûr de vouloir vous déconnecter ?
+          Vous allez être redirigé vers la page d'accueil.
         </p>
-
-        <button
-          onClick={handleLogout}
-          className="w-full py-3 bg-green-600 text-white rounded-md hover:bg-green-500 transition"
-        >
-          Se déconnecter
-        </button>
-
         {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
       </div>
 

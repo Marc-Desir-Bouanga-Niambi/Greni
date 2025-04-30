@@ -1,9 +1,11 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5240";
+export const API_URL =
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:5240";
 
 // Types
 export interface Marque {
   id_marque: number;
   Nom: string;
+  Modeles?: Modele[];
 }
 
 export interface Modele {
@@ -16,14 +18,49 @@ export interface Modele {
   Tag?: string;
   id_marque: number;
   Marque?: Marque;
+  Produits?: Produit[];
+  ListeDeSouhaits?: ListeDeSouhaits[];
 }
 
 export interface Produit {
   id_produit: number;
-  Nom: string;
+  nom_produit: string;
   Etat: string;
-  id_commande?: number;
+  nom_modele: string;
+  prix_neuf: number;
+  prix_occasion: number;
+  nom_marque: string;
   id_modele: number;
+}
+
+export interface Commande {
+  id_commande: number;
+  date_commande: Date;
+  date_reception?: Date;
+  status_commande: string;
+  adresse_livraison: string;
+  id_compte: number;
+  Compte?: Compte;
+  Produits?: Produit[];
+}
+
+export interface Compte {
+  id_compte: number;
+  Nom: string;
+  Prenom: string;
+  Email: string;
+  MotDePasse: string;
+  Telephone?: string;
+  Adresse?: string;
+  Commandes?: Commande[];
+  ListeDeSouhaits?: ListeDeSouhaits[];
+}
+
+export interface ListeDeSouhaits {
+  id_liste: number;
+  id_compte: number;
+  id_modele: number;
+  Compte?: Compte;
   Modele?: Modele;
 }
 
@@ -140,7 +177,7 @@ export const marqueService = {
 export const modeleService = {
   getAll: async (): Promise<Modele[]> => {
     try {
-      const url = `${API_URL}/api/Modeles`;
+      const url = `${API_URL}/api/Modele`;
       const response = await fetch(url, {
         method: "GET",
         headers: defaultHeaders,
@@ -154,7 +191,7 @@ export const modeleService = {
 
   getById: async (id: number): Promise<Modele> => {
     try {
-      const url = `${API_URL}/api/Modeles/${id}`;
+      const url = `${API_URL}/api/Modele/${id}`;
       const response = await fetch(url, {
         method: "GET",
         headers: defaultHeaders,
@@ -214,28 +251,119 @@ export const modeleService = {
 // Services pour les produits
 export const produitService = {
   getAll: async (): Promise<Produit[]> => {
-    const response = await fetch(`${API_URL}/api/Produit`, {
-      method: "GET",
-      headers: defaultHeaders,
-    });
-    return handleResponse(response);
+    const response = await fetch(`${API_URL}/api/Produit`);
+    if (!response.ok) {
+      throw new Error("Erreur lors de la récupération des produits");
+    }
+    return response.json();
   },
 
   getById: async (id: number): Promise<Produit> => {
     try {
-      const url = `${API_URL}/api/Produits/${id}`;
-      console.log("URL de l'API:", url);
+      console.log(`Tentative de récupération du produit ${id}`);
+      const url = `${API_URL}/api/Produit/${id}`;
+      console.log(`URL de la requête: ${url}`);
 
       const response = await fetch(url, {
         method: "GET",
         headers: defaultHeaders,
       });
 
-      return handleResponse(response);
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(
+          `Erreur HTTP: ${response.status} - ${response.statusText}`
+        );
+        console.error(`Détails de l'erreur: ${errorText}`);
+        throw new Error(
+          `Erreur lors de la récupération du produit: ${response.status} - ${errorText}`
+        );
+      }
+
+      const produitBrut = await response.json();
+      console.log(
+        "Produit brut récupéré:",
+        JSON.stringify(produitBrut, null, 2)
+      );
+
+      if (!produitBrut) {
+        throw new Error("Produit non trouvé");
+      }
+
+      // Récupérer l'ID du modèle à partir du nom du modèle
+      const modeles = await modeleService.getAll();
+      const modele = modeles.find(
+        (m) => m.nom_modele === produitBrut.nom_modele
+      );
+
+      if (!modele) {
+        throw new Error(
+          `Modèle non trouvé pour le produit: ${produitBrut.nom_modele}`
+        );
+      }
+
+      // Normalisation des propriétés
+      const produit: Produit = {
+        id_produit: produitBrut.id_produit,
+        nom_produit: produitBrut.nom_produit,
+        Etat: produitBrut.Etat,
+        id_modele: modele.id_modele,
+        nom_modele: produitBrut.nom_modele,
+        prix_neuf: produitBrut.prix_neuf,
+        prix_occasion: produitBrut.prix_occasion,
+        nom_marque: produitBrut.nom_marque,
+      };
+
+      console.log("Produit normalisé:", JSON.stringify(produit, null, 2));
+
+      return produit;
     } catch (error) {
-      console.error("Erreur lors de la récupération du produit:", error);
+      console.error(
+        "Erreur détaillée lors de la récupération du produit:",
+        error
+      );
       throw new Error(
-        `Impossible de récupérer le produit: ${
+        `Erreur lors de la récupération du produit: ${
+          error instanceof Error ? error.message : "Erreur inconnue"
+        }`
+      );
+    }
+  },
+
+  getStock: async (id: number, etat: "Neuf" | "Occasion"): Promise<number> => {
+    try {
+      console.log(
+        `Tentative de récupération du stock pour le produit ${id} (${etat})`
+      );
+
+      // Récupérer le produit
+      const produit = await produitService.getById(id);
+      console.log(
+        `Structure complète du produit:`,
+        JSON.stringify(produit, null, 2)
+      );
+
+      if (!produit.id_modele) {
+        console.error("Structure du produit:", produit);
+        throw new Error("ID du modèle non trouvé pour le produit");
+      }
+
+      // Récupérer le modèle
+      const modele = await modeleService.getById(produit.id_modele);
+      console.log(`Modèle récupéré:`, modele);
+
+      // Retourner le stock approprié en fonction de l'état fourni en paramètre
+      const stock = etat === "Neuf" ? modele.nbr_neuf : modele.nbr_occasion;
+      console.log(`Stock calculé pour le produit ${id}: ${stock}`);
+
+      return stock;
+    } catch (error) {
+      console.error(
+        "Erreur détaillée lors de la récupération du stock:",
+        error
+      );
+      throw new Error(
+        `Erreur lors de la récupération du stock: ${
           error instanceof Error ? error.message : "Erreur inconnue"
         }`
       );
@@ -244,7 +372,7 @@ export const produitService = {
 
   create: async (produit: Omit<Produit, "id_produit">): Promise<Produit> => {
     try {
-      const url = `${API_URL}/api/Produits`;
+      const url = `${API_URL}/api/Produit`;
       const response = await fetch(url, {
         method: "POST",
         headers: defaultHeaders,
@@ -259,7 +387,7 @@ export const produitService = {
 
   update: async (id: number, produit: Produit): Promise<void> => {
     try {
-      const url = `${API_URL}/api/Produits/${id}`;
+      const url = `${API_URL}/api/Produit/${id}`;
       const response = await fetch(url, {
         method: "PUT",
         headers: defaultHeaders,
@@ -274,7 +402,7 @@ export const produitService = {
 
   delete: async (id: number): Promise<void> => {
     try {
-      const url = `${API_URL}/api/Produits/${id}`;
+      const url = `${API_URL}/api/Produit/${id}`;
       const response = await fetch(url, {
         method: "DELETE",
         headers: defaultHeaders,

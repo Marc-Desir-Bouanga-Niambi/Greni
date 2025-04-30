@@ -1,29 +1,32 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import Link from 'next/link';
-import Header from '../components/header';
-import Footer from '../components/footer';
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import Footer from "../components/footer";
+import Header from "../components/header";
+import { produitService } from "../lib/services/api";
 
-interface Produit {
-  id: number;
-  nom: string;
-  prix_Neuf: number;
-  prix_Occasion: number;
+interface ProduitDisplay {
+  id_produit: number;
+  Nom: string;
+  Etat: string;
+  Modele?: {
+    prix_neuf: number;
+    prix_occasion: number;
+  };
 }
 
 export default function Catalogue() {
-  const [produits, setProduits] = useState<Produit[]>([]);
+  const [produits, setProduits] = useState<ProduitDisplay[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchProduits = async () => {
       try {
-        const res = await fetch('/api/produits'); // À adapter selon le backend
-        const data = await res.json();
+        const data = await produitService.getAll();
         setProduits(data);
       } catch (error) {
-        console.error('Erreur lors du chargement des produits:', error);
+        console.error("Erreur lors du chargement des produits:", error);
       } finally {
         setLoading(false);
       }
@@ -44,15 +47,20 @@ export default function Catalogue() {
             <p>Chargement...</p>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-              {produits.map(produit => (
+              {produits.map((produit) => (
                 <Link
-                  href={`/produits/${produit.id}`}
-                  key={produit.id}
+                  href={`/produit/${produit.id_produit}`}
+                  key={produit.id_produit}
                   className="border p-4 rounded-lg shadow hover:shadow-md transition"
                 >
-                  <h2 className="text-xl font-semibold">{produit.nom}</h2>
-                  <p>Neuf : {produit.prix_Neuf}€</p>
-                  <p>Occasion : {produit.prix_Occasion}€</p>
+                  <h2 className="text-xl font-semibold">{produit.Nom}</h2>
+                  <p>État : {produit.Etat}</p>
+                  {produit.Modele && (
+                    <>
+                      <p>Prix neuf : {produit.Modele.prix_neuf}€</p>
+                      <p>Prix occasion : {produit.Modele.prix_occasion}€</p>
+                    </>
+                  )}
                 </Link>
               ))}
             </div>

@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import Footer from "./components/footer";
@@ -7,40 +8,10 @@ import Header from "./components/header";
 import { Produit, produitService } from "./lib/services/api";
 
 const decorImages = [
-  "/images/forêt.jpg",
-  "/images/montagne.jpg",
-  "/images/océan.jpg",
+  { src: "/images/forêt.jpg", alt: "Paysage de forêt luxuriante" },
+  { src: "/images/montagne.jpg", alt: "Vue panoramique de montagnes" },
+  { src: "/images/océan.jpg", alt: "Vue sur l'océan" },
 ];
-
-const renderStars = (rating, productId) => {
-  const stars = [1, 2, 3, 4, 5];
-  return (
-    <Link
-      href={`/produit/${productId}`}
-      className="flex items-center space-x-1 group cursor-pointer"
-    >
-      {stars.map((star) => (
-        <svg
-          key={star}
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          className={`w-5 h-5 group-hover:text-yellow-500 ${
-            star <= rating ? "text-yellow-400" : "text-gray-300"
-          }`}
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="M12 17.27l4.18 2.18-1.64-5.11L20 9.24l-5.19-.42L12 3 9.19 8.82 4 9.24l3.46 4.1-1.64 5.11L12 17.27z"
-          />
-        </svg>
-      ))}
-    </Link>
-  );
-};
 
 export default function Accueil() {
   const [produits, setProduits] = useState<Produit[]>([]);
@@ -69,7 +40,7 @@ export default function Accueil() {
         <Header />
         <main className="flex-grow px-6 py-8 pt-24 pb-32">
           <div className="max-w-6xl mx-auto text-center">
-            <p>Chargement des produits...</p>
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-700 mx-auto"></div>
           </div>
         </main>
         <Footer />
@@ -102,47 +73,62 @@ export default function Accueil() {
               <React.Fragment key={produit.id_produit}>
                 {index === 0 && (
                   <div className="col-span-full">
-                    <img
-                      src={decorImages[0]}
-                      alt="Décoration"
-                      className="rounded-xl shadow-md w-full h-64 object-cover"
-                    />
+                    <div className="relative w-full h-64 rounded-xl overflow-hidden shadow-md">
+                      <Image
+                        src={decorImages[0].src}
+                        alt={decorImages[0].alt}
+                        fill
+                        className="object-cover"
+                        priority
+                      />
+                    </div>
                   </div>
                 )}
 
                 <div className="bg-white border rounded-xl shadow-sm p-4 transform hover:scale-105 hover:shadow-lg transition duration-300">
-                  <div
-                    className="w-full h-48 bg-gray-300 rounded-md mb-3"
-                    style={{
-                      backgroundImage: `url(${
-                        produit.Modele?.Tag || "/images/default-product.jpg"
-                      })`,
-                      backgroundSize: "cover",
-                      backgroundPosition: "center",
-                    }}
-                  ></div>
-                  <div className="text-lg font-semibold mb-3">
-                    {produit.Nom}
+                  <div className="relative w-full h-48 rounded-md mb-3 overflow-hidden">
+                    <div className="w-full h-full bg-gray-100 flex items-center justify-center">
+                      <span className="text-gray-400">Pas d'image</span>
+                    </div>
                   </div>
-                  <div className="text-gray-700 font-medium mb-3">
-                    {produit.Etat === "Neuf"
-                      ? `${produit.Modele?.prix_neuf}€`
-                      : `${produit.Modele?.prix_occasion}€`}
-                  </div>
-
-                  <div className="mb-3 flex justify-between items-center">
-                    {renderStars(4, produit.id_produit)}
-                    <Link
-                      href={`/produit/${produit.id_produit}`}
-                      className="text-black text-sm hover:underline"
-                    >
-                      Voir les détails
-                    </Link>
+                  <div className="space-y-2">
+                    <div className="text-lg font-semibold">
+                      {produit.nom_produit}
+                    </div>
+                    <div className="text-gray-700 font-medium">
+                      {produit.Etat === "Neuf"
+                        ? `${produit.prix_neuf.toFixed(2)}€`
+                        : `${produit.prix_occasion.toFixed(2)}€`}
+                    </div>
+                    <div className="text-sm text-gray-500">
+                      {produit.nom_marque} - {produit.nom_modele}
+                    </div>
+                    <div className="flex items-center space-x-1">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <svg
+                          key={star}
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          className={`w-5 h-5 ${
+                            star <= 4 ? "text-yellow-400" : "text-gray-300"
+                          }`}
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M12 17.27l4.18 2.18-1.64-5.11L20 9.24l-5.19-.42L12 3 9.19 8.82 4 9.24l3.46 4.1-1.64 5.11L12 17.27z"
+                          />
+                        </svg>
+                      ))}
+                    </div>
                   </div>
 
                   <Link
                     href={`/produit/${produit.id_produit}`}
-                    className="inline-block mt-auto px-4 py-2 bg-green-700 text-white rounded-md hover:bg-green-600 transition"
+                    className="inline-block w-full text-center mt-4 px-4 py-2 bg-green-700 text-white rounded-md hover:bg-green-600 transition"
                   >
                     Voir le produit
                   </Link>
@@ -152,20 +138,28 @@ export default function Accueil() {
 
             {/* Deuxième image décorative */}
             <div className="col-span-full">
-              <img
-                src={decorImages[1]}
-                alt="Décoration"
-                className="rounded-xl shadow-md w-full h-64 object-cover"
-              />
+              <div className="relative w-full h-64 rounded-xl overflow-hidden shadow-md">
+                <Image
+                  src={decorImages[1].src}
+                  alt={decorImages[1].alt}
+                  fill
+                  className="object-cover"
+                  priority
+                />
+              </div>
             </div>
 
             {/* Troisième image décorative */}
             <div className="col-span-full">
-              <img
-                src={decorImages[2]}
-                alt="Décoration"
-                className="rounded-xl shadow-md w-full h-64 object-cover"
-              />
+              <div className="relative w-full h-64 rounded-xl overflow-hidden shadow-md">
+                <Image
+                  src={decorImages[2].src}
+                  alt={decorImages[2].alt}
+                  fill
+                  className="object-cover"
+                  priority
+                />
+              </div>
             </div>
           </div>
         </div>
