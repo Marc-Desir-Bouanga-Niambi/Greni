@@ -24,28 +24,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
+    console.log("Token dans le contexte:", token);
     if (token) {
       getProfil()
         .then((userData) => {
+          console.log("Données utilisateur reçues:", userData);
           setUser(userData);
         })
-        .catch(() => {
+        .catch((error) => {
+          console.error("Erreur lors de la récupération du profil:", error);
           localStorage.removeItem("token");
         })
         .finally(() => {
           setLoading(false);
         });
     } else {
+      console.log("Aucun token trouvé");
       setLoading(false);
     }
   }, []);
 
   const handleLogin = async (email: string, password: string) => {
     try {
+      console.log("Tentative de connexion...");
       const userData = await login(email, password);
+      console.log("Données utilisateur après connexion:", userData);
       setUser(userData);
       return userData;
     } catch (error) {
+      console.error("Erreur lors de la connexion:", error);
       throw error;
     }
   };

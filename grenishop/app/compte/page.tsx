@@ -12,14 +12,18 @@ export default function Profil() {
   const router = useRouter();
 
   useEffect(() => {
+    console.log("État du profil:", { user, isLoggedIn });
     if (!isLoggedIn) {
       router.push("/connexion");
     }
-  }, [isLoggedIn, router]);
+  }, [isLoggedIn, router, user]);
 
   if (!isLoggedIn || !user) {
-    return null; // Le useEffect redirigera vers la page de connexion
+    console.log("Utilisateur non connecté ou données manquantes");
+    return null;
   }
+
+  console.log("Données utilisateur à afficher:", user);
 
   return (
     <div className="min-h-screen flex flex-col bg-white">

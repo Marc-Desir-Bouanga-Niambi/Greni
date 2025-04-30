@@ -1,6 +1,7 @@
 import axios from "axios";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5240";
+console.log("URL de l'API:", API_URL);
 
 // Types
 export interface Compte {
@@ -38,10 +39,19 @@ export interface AuthResponse {
 // Configuration d'axios pour inclure le token dans toutes les requêtes
 const api = axios.create({
   baseURL: API_URL,
+  headers: {
+    "Content-Type": "application/json",
+    Accept: "application/json",
+  },
 });
 
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
+  console.log("Configuration de la requête:", {
+    url: config.url,
+    method: config.method,
+    headers: config.headers,
+  });
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -54,28 +64,72 @@ export async function login(
 ): Promise<Compte> {
   try {
     console.log("Tentative de connexion avec:", { email });
-    const response = await api.post<AuthResponse>("/api/Comptes/connexion", {
+    const response = await api.post<any>("/api/Comptes/connexion", {
       Email: email,
       MotDePasse: motDePasse,
     });
-    console.log("Réponse de connexion:", response.data);
+    console.log("Réponse complète de connexion:", response);
+    console.log("Données du compte:", response.data.compte);
+
+    if (!response.data.compte) {
+      throw new Error("Aucune donnée de compte reçue du serveur");
+    }
+
+    // Transformation des données pour correspondre à l'interface Compte
+    const compte: Compte = {
+      id_compte: response.data.compte.id_compte,
+      Nom: response.data.compte.nom || response.data.compte.Nom,
+      Prenom: response.data.compte.prenom || response.data.compte.Prenom,
+      Email: response.data.compte.email || response.data.compte.Email,
+      date_inscription: response.data.compte.date_inscription,
+    };
+
+    console.log("Données transformées:", compte);
     localStorage.setItem("token", response.data.token);
-    return response.data.compte;
+    return compte;
   } catch (error: any) {
-    console.error(
-      "Erreur de connexion:",
-      error.response?.data || error.message
-    );
+    console.error("Erreur détaillée de connexion:", {
+      message: error.message,
+      response: error.response?.data,
+      status: error.response?.status,
+    });
     throw new Error(error.response?.data?.message || "Échec de connexion");
   }
 }
 
 export async function getProfil(): Promise<Compte> {
   try {
-    const response = await api.get<Compte>("/api/Comptes/profil");
-    return response.data;
-  } catch (error) {
-    console.error("Erreur de récupération du profil:", error);
+    console.log("Tentative de récupération du profil...");
+    const token = localStorage.getItem("token");
+    console.log("Token présent:", !!token);
+    console.log("URL de l'API:", API_URL);
+
+    const response = await api.get<any>("/api/Comptes/profil");
+    console.log("Réponse complète:", response);
+    console.log("Données du profil:", response.data);
+
+    if (!response.data) {
+      throw new Error("Aucune donnée reçue du serveur");
+    }
+
+    // Transformation des données pour correspondre à l'interface Compte
+    const compte: Compte = {
+      id_compte: response.data.id_compte,
+      Nom: response.data.nom || response.data.Nom,
+      Prenom: response.data.prenom || response.data.Prenom,
+      Email: response.data.email || response.data.Email,
+      date_inscription: response.data.date_inscription,
+    };
+
+    console.log("Données transformées:", compte);
+    return compte;
+  } catch (error: any) {
+    console.error("Erreur détaillée:", {
+      message: error.message,
+      response: error.response?.data,
+      status: error.response?.status,
+      headers: error.response?.headers,
+    });
     throw new Error("Erreur lors de la récupération du profil");
   }
 }

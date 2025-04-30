@@ -91,8 +91,8 @@ export default function Header() {
                 className="flex items-center text-gray-700 hover:text-green-700 px-3 py-2 rounded-md text-sm font-medium"
               >
                 <span className="mr-2">Mon compte</span>
-                <span className="inline-flex items-center justify-center w-6 h-6 bg-green-100 text-green-700 rounded-full text-xs font-medium">
-                  {user?.Prenom?.[0] || "U"}
+                <span className="inline-flex items-center justify-center px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">
+                  {user?.Prenom || "Utilisateur"}
                 </span>
               </Link>
             ) : (
