@@ -145,7 +145,7 @@ export default function Header() {
               Accueil
             </Link>
             <Link
-              href="/produits"
+              href="/produit"
               className="text-gray-700 hover:text-green-700 px-3 py-2 rounded-md text-sm font-medium"
             >
               Produits

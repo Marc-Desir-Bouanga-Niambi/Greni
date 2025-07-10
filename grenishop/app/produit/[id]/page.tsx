@@ -14,9 +14,7 @@ export default function ProductDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isFavorite, setIsFavorite] = useState(false);
-  const [etatSelectionne, setEtatSelectionne] = useState<"Neuf" | "Occasion">(
-    "Neuf"
-  );
+  const [etatSelectionne, setEtatSelectionne] = useState<"Neuf" | "Occasion">("Neuf");
   const [notification, setNotification] = useState<{
     message: string;
     type: "success" | "error";
@@ -35,7 +33,6 @@ export default function ProductDetail() {
       try {
         const data = await produitService.getById(Number(params.id));
         setProduct(data);
-        // Vérifier si le produit est dans les favoris
         const favoris = JSON.parse(localStorage.getItem("favoris") || "[]");
         setIsFavorite(
           favoris.some((p: Produit) => p.id_produit === data.id_produit)
@@ -64,7 +61,6 @@ export default function ProductDetail() {
     const nouveauPanier = [...panier, { ...product, etatSelectionne }];
     localStorage.setItem("panier", JSON.stringify(nouveauPanier));
 
-    // Mettre à jour le compteur du panier dans le header
     const event = new CustomEvent("panierUpdated", {
       detail: nouveauPanier.length,
     });
@@ -106,7 +102,7 @@ export default function ProductDetail() {
 
   if (loading) {
     return (
-      <div className="flex flex-col min-h-screen bg-white">
+      <div className="flex flex-col min-h-screen bg-gradient-to-b from-green-50 to-green-100">
         <Header />
         <main className="px-6 py-8 pt-24 pb-32 flex-grow">
           <div className="text-center">
@@ -120,7 +116,7 @@ export default function ProductDetail() {
 
   if (error || !product) {
     return (
-      <div className="flex flex-col min-h-screen bg-white">
+      <div className="flex flex-col min-h-screen bg-gradient-to-b from-green-50 to-green-100">
         <Header />
         <main className="px-6 py-8 pt-24 pb-32 flex-grow">
           <div className="text-center text-red-600">
@@ -134,7 +130,6 @@ export default function ProductDetail() {
 
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-b from-green-50 to-green-100">
-
       <Header />
       {notification && (
         <div
@@ -217,7 +212,9 @@ export default function ProductDetail() {
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    className={`h-5 w-5 mr-2 transition-transform ${isFavorite ? "scale-110" : ""}`}
+                    className={`h-5 w-5 mr-2 transition-transform ${
+                      isFavorite ? "scale-110" : ""
+                    }`}
                     fill={isFavorite ? "currentColor" : "none"}
                     viewBox="0 0 24 24"
                     stroke="currentColor"

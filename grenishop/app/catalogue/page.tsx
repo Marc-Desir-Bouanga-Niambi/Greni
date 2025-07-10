@@ -36,7 +36,7 @@ export default function Catalogue() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
+    <div className="flex flex-col min-h-screen bg-gradient-to-b from-green-50 to-green-100">
       <Header />
 
       <main className="flex-grow px-6 py-8 pt-24 pb-32">
